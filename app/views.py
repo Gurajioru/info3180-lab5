@@ -12,6 +12,8 @@ from .forms import MovieForm
 from werkzeug.utils import secure_filename
 from .models import Movies
 import traceback
+from flask_wtf.csrf import generate_csrf
+
 
 
 ###
@@ -73,7 +75,7 @@ def movies():
         title = form.title.data
         description=form.description.data
         poster=form.poster.data
-
+        
     
         file = poster 
         filename = secure_filename(file.filename)
@@ -90,6 +92,8 @@ def movies():
             
         except:
             traceback.print_exc()
+            error=form_errors(form)
+            return jsonify(error=error)
 
         movie = [ {"message": "Movie Successfully added", "title": title, "description": description, "poster":filename } ]
         return jsonify(movie=movie)
@@ -101,6 +105,11 @@ def movies():
 @app.route('/uploads/<filename>')
 def get_image(filename):
     return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']), filename)
+
+
+@app.route('/api/v1/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
 
 
     
