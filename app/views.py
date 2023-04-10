@@ -102,7 +102,7 @@ def movies():
         error=form_errors(form)
         return jsonify(error=error)
 
-@app.route('/uploads/<filename>')
+@app.route('/api/v1/posters/<filename>')
 def get_image(filename):
     return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']), filename)
 
@@ -110,6 +110,17 @@ def get_image(filename):
 @app.route('/api/v1/csrf-token', methods=['GET'])
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
+
+@app.route('/api/v1/movies', methods=['GET'])
+def get_movies():
+    movies=db.session.execute(db.select(Movies)).scalars()
+
+    movies_data=[]
+
+    for movie in movies:
+        movies_data.append({"title": movie.title, "description": movie.description, "poster":movie.poster })
+    
+    return jsonify(movies=movies_data)
 
 
     
